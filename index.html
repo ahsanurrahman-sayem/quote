@@ -51,19 +51,42 @@
 		/* CLEAN RENDER PAGE */
 		#renderWrapper { display:none; min-height:100vh; justify-content:center; align-items:center; background:#E8D7B8; padding:20px; }
 		#renderBox {
-			width:1080px;
+			width:1920px;
 			height:1080px;
 			background:#E8D7B8;
 			display:flex;
 			flex-direction:column;
 			justify-content:center;
 			align-items:center;
-			padding:80px;
+			/*padding:80px;*/
 			text-align:center;
 		}
-		#renderText { font-size:64px; white-space:pre-wrap; word-break:break-word; color:#000; }
-		#renderAuthor { margin-top:40px; font-size:40px; font-style:italic; color:#555; align-self:flex-end; }
-		#renderControls { position:fixed; bottom:20px; width:100%; max-width:400px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; gap:10px; }
+		#renderText { 
+			font-size:48px; 
+			white-space:pre-wrap; 
+			word-break:break-word;
+			color:#000; 
+			padding:80px 80px 0px 80px;
+		}
+		#renderAuthor { 
+			margin-top:36px; 
+			font-size:40px; 
+			font-style:italic; 
+			color:#555; 
+			align-self:flex-end; 
+			padding:0px 80px 0px 80px;
+		}
+		#renderControls { 
+			position:fixed; 
+			bottom:20px; 
+			width:100%; 
+			max-width:400px; 
+			left:50%;
+			transform:translateX(-50%); 
+			display:flex; 
+			flex-direction:column;
+			gap:10px; 
+		}
 	</style>
 </head>
 <body>
@@ -182,7 +205,7 @@ you don't lose anyone, they lose you."></textarea>
 	function openRender(quote) {
 		activeQuote = quote;
 		renderText.textContent = quote.text;
-		renderAuthor.textContent = quote.author ? `— ${quote.author}` : '';
+		renderAuthor.textContent = quote.author ? `${quote.author}` : '';
 		inputPage.style.display = 'none';
 		displayPage.style.display = 'none';
 		renderWrapper.style.display = 'flex';
@@ -193,7 +216,7 @@ you don't lose anyone, they lose you."></textarea>
 	}
 
 	function downloadImage() {
-		html2canvas(document.getElementById('renderBox'), {scale:1}).then(canvas => {
+		html2canvas(document.getElementById('renderBox'), {scale: window.devicePixelRatio}).then(canvas => {
 			const link = document.createElement('a');
 			link.download = 'quote.png';
 			link.href = canvas.toDataURL('image/png');
