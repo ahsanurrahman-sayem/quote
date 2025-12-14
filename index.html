@@ -34,6 +34,7 @@ you don't lose anyone, they lose you."></textarea>
 	<label for="author">Author (optional):</label>
 	<input type="text" id="author" placeholder="Name of the Quot's author">
 	<button onclick="AddQuote()">Create Quote</button>
+	<button onclick="ClearQuotes()">Clear All Quotes</button>
 	<div class="nav"><a href="#" onclick="ShowDisplay()">View All Quotes</a></div>
 </div>
 
@@ -49,7 +50,14 @@ you don't lose anyone, they lose you."></textarea>
 	function SaveQuotes() {
 		localStorage.setItem('quotes', JSON.stringify(quotes));
 	}
-
+	function ClearQuotes() {
+		if(!confirm("Are you sure you want to clear all quotes?")) return;
+		quotes = [];
+		localStorage.removeItem('quotes');
+		RenderQuotes();
+		alert("All quotes cleared!");
+		ShowInput();
+	}
 	function AddQuote() {
 		const text = document.getElementById('text').value.trim();
 		const author = document.getElementById('author').value.trim();
