@@ -4,112 +4,206 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="author" content="Ahsanur Rahman">
-	<meta name="description" content="Write your quotes and take screenshots of'em and post them in your socials, enjoy.">
+	<meta name="description" content="Write quotes and generate social-ready images.">
 	<title>Quotes App</title>
 	<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet">
 	<style>
 		* { margin:0; padding:0; box-sizing:border-box; }
-		body { font-family:'Kalam', cursive; background:#E8D7B8; min-height:100vh; padding:20px; }
-		.container { max-width: 700px; margin:auto; background:#E8D7B8; padding:40px; border-radius:20px; /*box-shadow:0 10px 30px rgba(0,0,0,0.1);*/}
-		h1 { text-align:center; font-size:2.5em; margin-bottom:30px; color:#333;}
-		textarea, input[type=text] { width:100%; padding:15px; font-size:1.1em; font-family:'Kalam', cursive; border-radius:10px; border:3px solid #B8D4D4; margin-bottom:20px; }
-		textarea:focus, input[type=text]:focus { border-color:#8FBEBE; outline:none;}
-		button { margin: 2% 0% 0% 0%; width:100%; padding:15px; font-size:1.3em; background:#B8D4D4; border:none; border-radius:10px; cursor:pointer; transition:0.3s;}
-		button:hover { background:#8FBEBE; transform:translateY(-2px);}
-		.quote-card { background:#E8D7B8; padding:40px; margin-bottom:40px; text-align:center; border-radius:10px; }
-		.text-line { display:inline-block; background:#B8D4D4; padding:15px 40px; margin:8px 0; font-size:2em; border-radius:5px; color:#000; line-height:1.4; }
-		.author { font-size:1.5em; color:#666; margin-top:20px; font-style:italic; text-align:right; max-width:600px; margin-left:auto; margin-right:auto;}
-		.nav { text-align:center; margin-bottom:20px; }
-		.nav a { margin:0 10px; color:#5A9A9A; text-decoration:none; font-size:1.1em; }
-		.nav a:hover { text-decoration:underline; }
+		body { font-family:'Kalam', cursive; background:#E8D7B8; min-height:100vh; padding:0; }
+
+		/* Common containers */
+		.container { max-width:700px; margin:auto; background:#E8D7B8; padding:40px; border-radius:20px; }
+
+		textarea, input[type=text] {
+			width:100%;
+			padding:15px;
+			font-size:1.1em;
+			font-family:'Kalam', cursive;
+			border-radius:10px;
+			border:3px solid #B8D4D4;
+			margin-bottom:20px;
+		}
+
+		button {
+			width:100%;
+			padding:15px;
+			margin-top:10px;
+			font-size:1.2em;
+			background:#B8D4D4;
+			border:none;
+			border-radius:10px;
+			cursor:pointer;
+		}
+
+		button:hover { background:#8FBEBE; }
+
+		.quote-card { padding:20px 10px; margin-bottom:20px; border-radius:10px; }
+		.quote-text { white-space:pre-wrap; word-break:break-word; font-size:1.8em; color:#000; }
+		.author { margin-top:10px; font-style:italic; color:#555; text-align:right; }
+
+		/* FIXED HEADER + SCROLLABLE CONTENT + FOOTER */
+		.view-layout { height: 100vh; display: flex; flex-direction: column; }
+		.view-header { flex-shrink:0; text-align:center; padding:20px 0; }
+		.view-header h1 { font-size:2.5em; color:#333; }
+		.view-content { flex:1; overflow-y:auto; padding:0 10px; }
+		.view-footer { flex-shrink:0; display:flex; flex-direction:column; gap:10px; padding:20px 0; }
+
+		/* CLEAN RENDER PAGE */
+		#renderWrapper { display:none; min-height:100vh; justify-content:center; align-items:center; background:#E8D7B8; padding:20px; }
+		#renderBox {
+			width:1080px;
+			height:1080px;
+			background:#E8D7B8;
+			display:flex;
+			flex-direction:column;
+			justify-content:center;
+			align-items:center;
+			padding:80px;
+			text-align:center;
+		}
+		#renderText { font-size:64px; white-space:pre-wrap; word-break:break-word; color:#000; }
+		#renderAuthor { margin-top:40px; font-size:40px; font-style:italic; color:#555; align-self:flex-end; }
+		#renderControls { position:fixed; bottom:20px; width:100%; max-width:400px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; gap:10px; }
 	</style>
 </head>
 <body>
 
-<div class="container" id="input-page">
+<!-- CREATE PAGE -->
+<div class="container" id="inputPage">
 	<h1>Create Your Quote</h1>
-	<label for="text">Enter your text (use line breaks for multiple lines):</label>
-	<textarea id="text" placeholder="When your intentions are pure,
+	<textarea id="textInput" placeholder="When your intentions are pure,
 you don't lose anyone, they lose you."></textarea>
-	<label for="author">Author (optional):</label>
-	<input type="text" id="author" placeholder="Name of the Quot's author">
-	<button onclick="AddQuote()">Create Quote</button>
-	<button onclick="ClearQuotes()">Clear All Quotes</button>
-	<button onclick="ShowDisplay()">View All Quotes</button>
+	<input type="text" id="authorInput" placeholder="Author (optional)">
+	<button onclick="addQuote()">Create Quote</button>
+	<button onclick="showDisplay()">View Quotes</button>
 </div>
 
-<div class="container" id="display-page" style="display:none;">
-	<h1>Inspirational Quotes</h1>
-	<div class="nav"><a href="#" onclick="ShowInput()">Add New Quote</a></div>
-	<div id="quotes-container"></div>
+<!-- DISPLAY / LIST PAGE -->
+<div class="container view-layout" id="displayPage" style="display:none;">
+	<div class="view-header">
+		<h1>Inspirational Quotes</h1>
+	</div>
+	<div class="view-content" id="quotesContainer"></div>
+	<div class="view-footer">
+		<button onclick="showInput()">Add New Quote</button>
+	</div>
+</div>
+
+<!-- CLEAN RENDER / DOWNLOAD PAGE -->
+<div id="renderWrapper">
+	<div id="renderBox">
+		<div id="renderText"></div>
+		<div id="renderAuthor"></div>
+	</div>
+	<div id="renderControls">
+		<button onclick="downloadImage()">Download 1:1 Image</button>
+		<button onclick="closeRender()">Back</button>
+	</div>
 </div>
 
 <script>
-	let quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
+	// DOM references
+	const inputPage = document.getElementById('inputPage');
+	const displayPage = document.getElementById('displayPage');
+	const quotesContainer = document.getElementById('quotesContainer');
+	const renderWrapper = document.getElementById('renderWrapper');
+	const renderText = document.getElementById('renderText');
+	const renderAuthor = document.getElementById('renderAuthor');
+	const textInput = document.getElementById('textInput');
+	const authorInput = document.getElementById('authorInput');
 
-	function SaveQuotes() {
+	let quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
+	let activeQuote = null;
+
+	// Save to localStorage
+	function saveQuotes() {
 		localStorage.setItem('quotes', JSON.stringify(quotes));
 	}
-	function ClearQuotes() {
-		if(!confirm("Are you sure you want to clear all quotes?")) return;
-		quotes = [];
-		localStorage.removeItem('quotes');
-		RenderQuotes();
-		alert("All quotes cleared!");
-		ShowInput();
-	}
-	function AddQuote() {
-		const text = document.getElementById('text').value.trim();
-		const author = document.getElementById('author').value.trim();
-		if(!text) return alert("Quote cannot be empty!");
+
+	// CREATE
+	function addQuote() {
+		const text = textInput.value.trim();
+		const author = authorInput.value.trim();
+		if(!text) return alert("Quote cannot be empty");
 		quotes.push({text, author});
-		SaveQuotes();
-		document.getElementById('text').value = '';
-		document.getElementById('author').value = '';
-		ShowDisplay();
+		saveQuotes();
+		textInput.value = '';
+		authorInput.value = '';
+		showDisplay();
 	}
 
-	function ShowInput() {
-		document.getElementById('input-page').style.display = 'block';
-		document.getElementById('display-page').style.display = 'none';
+	// SHOW PAGES
+	function showInput() {
+		inputPage.style.display = 'block';
+		displayPage.style.display = 'none';
+		renderWrapper.style.display = 'none';
 	}
 
-	function ShowDisplay() {
-		document.getElementById('input-page').style.display = 'none';
-		document.getElementById('display-page').style.display = 'block';
-		RenderQuotes();
+	function showDisplay() {
+		inputPage.style.display = 'none';
+		displayPage.style.display = 'flex';
+		renderWrapper.style.display = 'none';
+		renderQuotes();
 	}
 
-	function RenderQuotes() {
-		const container = document.getElementById('quotes-container');
-		container.innerHTML = '';
-		if(quotes.length === 0){
-			container.innerHTML = '<div style="text-align:center; font-size:2em; color:#666; margin-top:50px;">No quotes yet. Create your first one!</div>';
+	// RENDER QUOTES LIST
+	function renderQuotes() {
+		quotesContainer.innerHTML = '';
+		if(quotes.length === 0) {
+			quotesContainer.innerHTML = '<div style="text-align:center;font-size:2em;color:#666;">No quotes yet.</div>';
 			return;
 		}
-		for(const quote of quotes){
+		for(const quote of quotes) {
 			const card = document.createElement('div');
 			card.className = 'quote-card';
 
-			const quoteDiv = document.createElement('div');
-			quoteDiv.style.whiteSpace = 'pre-wrap'; // preserve line breaks
-			quoteDiv.style.wordBreak = 'break-word'; // wrap long words
-			quoteDiv.style.fontSize = '2em';
-			quoteDiv.style.color = '#000';
-			quoteDiv.textContent = quote.text;
-			card.appendChild(quoteDiv);
+			const textDiv = document.createElement('div');
+			textDiv.className = 'quote-text';
+			textDiv.textContent = quote.text;
+			card.appendChild(textDiv);
 
-			if(quote.author){
+			if(quote.author) {
 				const authorDiv = document.createElement('div');
 				authorDiv.className = 'author';
 				authorDiv.textContent = quote.author;
 				card.appendChild(authorDiv);
 			}
 
-			container.appendChild(card);
+			const btn = document.createElement('button');
+			btn.textContent = 'View Clean / Download';
+			btn.onclick = () => openRender(quote);
+			card.appendChild(btn);
+
+			quotesContainer.appendChild(card);
 		}
 	}
+
+	// CLEAN RENDER
+	function openRender(quote) {
+		activeQuote = quote;
+		renderText.textContent = quote.text;
+		renderAuthor.textContent = quote.author ? `— ${quote.author}` : '';
+		inputPage.style.display = 'none';
+		displayPage.style.display = 'none';
+		renderWrapper.style.display = 'flex';
+	}
+
+	function closeRender() {
+		showDisplay();
+	}
+
+	function downloadImage() {
+		html2canvas(document.getElementById('renderBox'), {scale:1}).then(canvas => {
+			const link = document.createElement('a');
+			link.download = 'quote.png';
+			link.href = canvas.toDataURL('image/png');
+			link.click();
+		});
+	}
+
+	showInput();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
