@@ -194,13 +194,25 @@ you don't lose anyone, they lose you."></textarea>
 
 			const btn = document.createElement('button');
 			btn.textContent = 'View Clean / Download';
+			const clr = document.createElement('button');
+			clr.textContent = "Delete";
+			
 			btn.onclick = () => openRender(quote);
+			clr.onclick = () => clearQuote(quote);
 			card.appendChild(btn);
+			card.appendChild(clr);
 
 			quotesContainer.appendChild(card);
 		}
 	}
-
+	// function 'clearQuote()'
+	function clearQuote(quote){
+		const index = quotes.indexOf(quote);
+		if(index === -1) return;
+		quotes.splice(index, 1);
+		saveQuotes();
+		renderQuotes();
+	}
 	// CLEAN RENDER
 	function openRender(quote) {
 		activeQuote = quote;
