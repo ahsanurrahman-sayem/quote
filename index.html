@@ -6,10 +6,27 @@
 	<meta name="author" content="Ahsanur Rahman">
 	<meta name="description" content="Write quotes and generate social-ready images.">
 	<title>Quotes App</title>
-	<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet">
+
+	<!-- Google Font -->
+	<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet"> 
+
+	<!-- GitHub Font -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iif-dev/chhatrish-font@v1.0.0/css/chhatrish.css">
+
 	<style>
 		* { margin:0; padding:0; box-sizing:border-box; }
-		body { font-family:'Kalam', cursive; background:#E8D7B8; min-height:100vh; padding:0; }
+
+		/* Fonts */
+		body, input, textarea, .quote-card, .quote-text, .author, button {
+			font-family: 'Kalam', cursive;
+		}
+		.bangla { font-family: 'Chhatrish', cursive; }
+
+		body {
+			background:#E8D7B8;
+			min-height:100vh;
+			padding:0;
+		}
 
 		/* Common containers */
 		.container { max-width:700px; margin:auto; background:#E8D7B8; padding:40px; border-radius:20px; }
@@ -18,7 +35,6 @@
 			width:100%;
 			padding:15px;
 			font-size:1.1em;
-			font-family:'Kalam', cursive;
 			border-radius:10px;
 			border:3px solid #B8D4D4;
 			margin-bottom:20px;
@@ -37,10 +53,11 @@
 
 		button:hover { background:#8FBEBE; }
 
-		.quote-card { padding:20px 10px; margin-bottom:30px; border-radius:10px; 
-		}
+		.quote-card { padding:20px 10px; margin-bottom:20px; border-radius:10px; }
+
 		.quote-text { white-space:pre-wrap; word-break:break-word; font-size:1.8em; color:#000; margin-top:60px }
-		.author { margin-bottom:50px; font-style:italic; color:#555; text-align:right; }
+
+		.author { font-style:italic; color:#555; text-align:right; }
 
 		/* FIXED HEADER + SCROLLABLE CONTENT + FOOTER */
 		.view-layout { height: 100vh; display: flex; flex-direction: column; }
@@ -59,7 +76,6 @@
 			flex-direction:column;
 			justify-content:center;
 			align-items:center;
-			/*padding:80px;*/
 			text-align:center;
 		}
 		#renderText { 
@@ -67,7 +83,7 @@
 			white-space:pre-wrap; 
 			word-break:break-word;
 			color:#000; 
-			padding:80px 80px 0px 80px;
+			padding:80px;
 		}
 		#renderAuthor { 
 			margin-top:36px; 
@@ -125,8 +141,8 @@ you don't lose anyone, they lose you."></textarea>
 	</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-	// DOM references
 	const inputPage = document.getElementById('inputPage');
 	const displayPage = document.getElementById('displayPage');
 	const quotesContainer = document.getElementById('quotesContainer');
@@ -139,7 +155,6 @@ you don't lose anyone, they lose you."></textarea>
 	let quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
 	let activeQuote = null;
 
-	// Save to localStorage
 	function saveQuotes() {
 		localStorage.setItem('quotes', JSON.stringify(quotes));
 	}
@@ -156,7 +171,6 @@ you don't lose anyone, they lose you."></textarea>
 		showDisplay();
 	}
 
-	// SHOW PAGES
 	function showInput() {
 		inputPage.style.display = 'block';
 		displayPage.style.display = 'none';
@@ -170,7 +184,6 @@ you don't lose anyone, they lose you."></textarea>
 		renderQuotes();
 	}
 
-	// RENDER QUOTES LIST
 	function renderQuotes() {
 		quotesContainer.innerHTML = '';
 		if(quotes.length === 0) {
@@ -181,32 +194,44 @@ you don't lose anyone, they lose you."></textarea>
 			const card = document.createElement('div');
 			card.className = 'quote-card';
 
+			// Quote text
 			const textDiv = document.createElement('div');
 			textDiv.className = 'quote-text';
 			textDiv.textContent = quote.text;
+
+			// Apply Bangla font if contains Bangla Unicode
+			if (/[ঀ-৿]/.test(quote.text)) textDiv.classList.add('bangla');
+
 			card.appendChild(textDiv);
 
+			// Author
 			if(quote.author) {
 				const authorDiv = document.createElement('div');
 				authorDiv.className = 'author';
 				authorDiv.textContent = quote.author;
+				if (/[ঀ-৿]/.test(quote.author)) authorDiv.classList.add('bangla');
 				card.appendChild(authorDiv);
+			} else {
+				card.style.marginBottom = '30px'; // margin if no author
 			}
 
+			// Buttons
 			const btn = document.createElement('button');
 			btn.textContent = 'View Clean / Download';
+			btn.style = "margin-top: 30px;";
+			btn.onclick = () => openRender(quote);
+
 			const clr = document.createElement('button');
 			clr.textContent = "Delete";
-			
-			btn.onclick = () => openRender(quote);
 			clr.onclick = () => clearQuote(quote);
+
 			card.appendChild(btn);
 			card.appendChild(clr);
 
 			quotesContainer.appendChild(card);
 		}
 	}
-	// function 'clearQuote()'
+
 	function clearQuote(quote){
 		const index = quotes.indexOf(quote);
 		if(index === -1) return;
@@ -214,9 +239,23 @@ you don't lose anyone, they lose you."></textarea>
 		saveQuotes();
 		renderQuotes();
 	}
-	// CLEAN RENDER
+
 	function openRender(quote) {
 		activeQuote = quote;
+
+		// Font switch for render
+		if(/[ঀ-৿]/.test(quote.text)) {
+			renderText.classList.add('bangla');
+		} else {
+			renderText.classList.remove('bangla');
+		}
+
+		if(quote.author && /[ঀ-৿]/.test(quote.author)) {
+			renderAuthor.classList.add('bangla');
+		} else {
+			renderAuthor.classList.remove('bangla');
+		}
+
 		renderText.textContent = quote.text;
 		renderAuthor.textContent = quote.author ? `${quote.author}` : '';
 		inputPage.style.display = 'none';
@@ -224,9 +263,7 @@ you don't lose anyone, they lose you."></textarea>
 		renderWrapper.style.display = 'flex';
 	}
 
-	function closeRender() {
-		showDisplay();
-	}
+	function closeRender() { showDisplay(); }
 
 	function downloadImage() {
 		html2canvas(document.getElementById('renderBox'), {scale: window.devicePixelRatio}).then(canvas => {
@@ -240,6 +277,5 @@ you don't lose anyone, they lose you."></textarea>
 	showInput();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
