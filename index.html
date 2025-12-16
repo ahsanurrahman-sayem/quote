@@ -161,15 +161,21 @@ you don't lose anyone, they lose you."></textarea>
 
 	// CREATE
 	function addQuote() {
-		const text = textInput.value.trim();
-		const author = authorInput.value.trim();
-		if(!text) return alert("Quote cannot be empty");
-		quotes.push({text, author});
-		saveQuotes();
-		textInput.value = '';
-		authorInput.value = '';
-		showDisplay();
-	}
+	const text = textInput.value.trim();
+	const author = authorInput.value.trim();
+	if(!text) return alert("Quote cannot be empty");
+
+	quotes.push({text, author});
+	saveQuotes();
+
+	textInput.value = '';
+	authorInput.value = '';
+
+	textInput.classList.remove('bangla');
+	authorInput.classList.remove('bangla');
+
+	showDisplay();
+}
 
 	function showInput() {
 		inputPage.style.display = 'block';
@@ -275,6 +281,20 @@ you don't lose anyone, they lose you."></textarea>
 	}
 
 	showInput();
+	function applyFontByLanguage(element) {
+	if (/[ঀ-৿]/.test(element.value)) {
+		element.classList.add('bangla');
+	} else {
+		element.classList.remove('bangla');
+	}
+}
+textInput.addEventListener('input', () => {
+	applyFontByLanguage(textInput);
+});
+
+authorInput.addEventListener('input', () => {
+	applyFontByLanguage(authorInput);
+});
 </script>
 
 </body>
