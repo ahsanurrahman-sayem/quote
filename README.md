@@ -1,1 +1,1 @@
-## <a href="https://ahsanurrahman-sayem.github.io/quote/">Web App here!</a> 
+## <a href="https://ahsanurrahman-sayem.github.io/quote/" style="font-style: none;">Web App here!</a> 
